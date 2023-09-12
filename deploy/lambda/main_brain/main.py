@@ -716,6 +716,15 @@ def create_chat_prompt_templete(lang='zh'):
             partial_variables={'system_role_prompt':SYSTEM_ROLE_PROMPT},
             input_variables=['question','chat_history','role_bot','role_user']
         )
+    elif lang == 'en':
+        prompt_template_en = """{system_role_prompt},Please extract the relevant information from the brackets and answer {role_user} questions\n```\n{chat_history}{context}\n```\n\n{role_user}: {question}\n{role_bot}: """
+
+        PROMPT = PromptTemplate(
+            template=prompt_template_en,
+            partial_variables={'system_role_prompt':SYSTEM_ROLE_PROMPT},
+            input_variables=["context",'question','chat_history','role_bot','role_user']
+        )
+
     return PROMPT
 
 def get_bedrock_aksk(secret_name='chatbot_bedrock', region_name = "us-west-2"):
@@ -865,7 +874,7 @@ def main_entry_new(session_id:str, query_input:str, embedding_model_endpoint:str
         query_type = QueryType.Conversation
         free_chat_coversions = [ (item[0],item[1]) for item in session_history if item[2] == str(query_type)]
         chat_history= get_chat_history(free_chat_coversions[-2:])
-        prompt_template = create_chat_prompt_templete(lang='zh')
+        prompt_template = create_chat_prompt_templete(lang='en')
         llmchain = LLMChain(llm=llm,verbose=verbose,prompt =prompt_template )
         ##最终的answer
         answer = llmchain.run({'question':query_input,'chat_history':chat_history,'role_bot':B_Role,'role_user':A_Role})
