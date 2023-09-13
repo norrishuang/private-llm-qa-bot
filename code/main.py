@@ -945,6 +945,8 @@ def main_entry_new(session_id:str, query_input:str, embedding_model_endpoint:str
         prompt_template = create_chat_prompt_templete(template)
         llmchain = LLMChain(llm=llm,verbose=verbose,prompt =prompt_template )
         ##最终的answer
+        
+        logger.info("question:{} chat_history:{} role_bot:{}", query_input, chat_history, B_Role)
         answer = llmchain.run({'question':query_input,'chat_history':chat_history,'role_bot':B_Role})
         ##最终的prompt日志
         final_prompt = prompt_template.format(question=query_input,role_bot=B_Role,chat_history=chat_history)
