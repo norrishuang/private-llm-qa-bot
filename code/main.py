@@ -325,6 +325,8 @@ class CustomDocRetriever(BaseRetriever,BaseModel):
             '''
             def get_topk_items(opensearch_knn_respose, opensearch_query_response, topk=1):
 
+                logger.info(f"recall records(knn): {str(opensearch_knn_respose.count())}")
+                logger.info(f"recall records(query): {str(opensearch_query_response.count())}")
                 opensearch_knn_nodup = []
                 unique_ids = set()
                 for item in opensearch_knn_respose:
