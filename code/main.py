@@ -947,9 +947,9 @@ def main_entry_new(session_id:str, query_input:str, embedding_model_endpoint:str
         ##最终的answer
         logger.info("question:{} chat_history:{} role_bot:{}".format(query_input,chat_history,B_Role))
         if llm_model_name.startswith('llama2'):
-            answer = llmchain.run({'question':query_input,'context':chat_history,'role_bot':B_Role })
+            answer = llmchain.run({'question':query_input,'content':chat_history,'role_bot':B_Role })
         else:
-            answer = llmchain.run({'question':query_input,'context':context,'chat_history':chat_history,'role_bot':B_Role })
+            answer = llmchain.run({'question':query_input,'content':context,'chat_history':chat_history,'role_bot':B_Role })
         ##最终的prompt日志
         final_prompt = prompt_template.format(question=query_input,role_bot=B_Role,chat_history=chat_history)
         recall_knowledge,opensearch_knn_respose,opensearch_query_response = [],[],[]
@@ -994,7 +994,7 @@ def main_entry_new(session_id:str, query_input:str, embedding_model_endpoint:str
             # context = "\n".join([doc['doc'] for doc in recall_knowledge])
             context = qa_knowledge_fewshot_build(recall_knowledge)
             ##最终的answer
-            answer = llmchain.run({'question':query_input,'context':context,'chat_history':chat_history,'role_bot':B_Role })
+            answer = llmchain.run({'question':query_input,'content':context,'chat_history':chat_history,'role_bot':B_Role })
             ##最终的prompt日志
             final_prompt = prompt_template.format(question=query_input,role_bot=B_Role,context=context,chat_history=chat_history)
             # print(final_prompt)
