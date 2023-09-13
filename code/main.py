@@ -50,8 +50,8 @@ A_Role="用户"
 B_Role="AWSBot"
 A_Role_en="user"
 SYSTEM_ROLE_PROMPT = '你是云服务AWS的智能客服机器人AWSBot'
-Fewshot_prefix_Q="问题"
-Fewshot_prefix_A="回答"
+Fewshot_prefix_Q="User"
+Fewshot_prefix_A="Assistant"
 RESET = '/rs'
 openai_api_key = None
 STOP=[f"\n{A_Role_en}", f"\n{A_Role}", f"\n{Fewshot_prefix_Q}"]
@@ -710,6 +710,23 @@ def qa_knowledge_fewshot_build(recalls):
     context_str = "\n\n".join(ret_context)
     return context_str
 
+##llama2
+# def qa_knowledge_fewshot_build_llama2(recalls):
+#     ret_context = []
+#     for recall in recalls:
+#         if recall['doc_type'] == 'Question':
+#             q, a = recall['doc'].split(QA_SEP)
+#             ##question
+#             qa_question = "User:{} \n Assistant:{}".format(q, a)
+#             ##answer
+#             qa_answer = "{'role':'assistant','content':'{}'}".format(a)
+#             ret_context.append("{},{},\n\n".format(qa_question,qa_answer))
+#         elif recall['doc_type'] == 'Paragraph':
+#             ret_context.append(recall['doc'])
+
+#     context_str = "\n\n".join(ret_context)
+#     return context_str
+
 
 def get_question_history(inputs) -> str:
     res = []
@@ -739,7 +756,7 @@ def create_baichuan_prompt_template(prompt_template):
     PROMPT = PromptTemplate(
         template=prompt_template_zh,
         partial_variables={'system_role_prompt':SYSTEM_ROLE_PROMPT},
-        input_variables=["context",'question','chat_history','role_bot']
+        input_variables=["context", 'question', 'chat_history', 'role_bot']
     )
     return PROMPT
 
@@ -754,6 +771,7 @@ def create_qa_prompt_templete(prompt_template):
         input_variables=["context",'question','chat_history','role_bot']
     )
     return PROMPT
+
 
 def create_chat_prompt_templete(prompt_template):
     if prompt_template == '':
