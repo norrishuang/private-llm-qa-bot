@@ -774,6 +774,18 @@ def create_qa_prompt_templete(prompt_template):
     )
     return PROMPT
 
+def create_qa_llama2_prompt_templete(prompt_template):
+    if prompt_template == '':
+        prompt_template_zh = """{system_role_prompt} {role_bot}\n请根据反括号中的内容提取相关信息回答问题:\n```\n{chat_history}{context}\n```\n如果反括号中的内容为空,则回答不知道.\n用户:{question}"""
+    else:
+        prompt_template_zh = prompt_template
+    PROMPT = PromptTemplate(
+        template=prompt_template_zh,
+        partial_variables={'system':SYSTEM_ROLE_PROMPT},
+        input_variables=["context",'question','chat_history']
+    )
+    return PROMPT
+
 
 def create_chat_prompt_templete(prompt_template):
     if prompt_template == '':
@@ -1022,9 +1034,9 @@ def main_entry_new(session_id:str, query_input:str, embedding_model_endpoint:str
 
     answer = enforce_stop_tokens(answer, STOP)
 
-    if not use_stream and recall_knowledge:
-        text = format_reference(recall_knowledge)
-        answer+= f'{text}```'
+    # if not use_stream and recall_knowledge:
+    #     text = format_reference(recall_knowledge)
+    #     answer+= f'{text}```'
 
     json_obj = {
         "query": query_input,
