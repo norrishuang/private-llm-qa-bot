@@ -949,7 +949,7 @@ def main_entry_new(session_id:str, query_input:str, embedding_model_endpoint:str
         if llm_model_name.startswith('llama2'):
             answer = llmchain.run({'question':query_input,'content':chat_history,'role_bot':B_Role })
         else:
-            answer = llmchain.run({'question':query_input,'content':context,'chat_history':chat_history,'role_bot':B_Role })
+            answer = llmchain.run({'question':query_input,'chat_history':chat_history,'role_bot':B_Role })
         ##最终的prompt日志
         final_prompt = prompt_template.format(question=query_input,role_bot=B_Role,chat_history=chat_history)
         recall_knowledge,opensearch_knn_respose,opensearch_query_response = [],[],[]
