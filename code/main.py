@@ -774,6 +774,7 @@ def create_qa_prompt_templete(prompt_template):
     )
     return PROMPT
 
+#llama2
 def create_qa_llama2_prompt_templete(prompt_template):
     if prompt_template == '':
         prompt_template_zh = """{system_role_prompt} {role_bot}\n请根据反括号中的内容提取相关信息回答问题:\n```\n{chat_history}{context}\n```\n如果反括号中的内容为空,则回答不知道.\n用户:{question}"""
@@ -786,6 +787,15 @@ def create_qa_llama2_prompt_templete(prompt_template):
     )
     return PROMPT
 
+#用于意图识别的 prompt template
+def create_intension_prompt_template(prompt_template):
+    prompt_template_zh = prompt_template
+    PROMPT = PromptTemplate(
+        template=prompt_template_zh,
+        # partial_variables={'system_role_prompt':'You are a AI Bot'},
+        input_variables=["intension_case",'question']
+    )
+    return PROMPT
 
 def create_chat_prompt_templete(prompt_template):
     if prompt_template == '':
@@ -828,6 +838,8 @@ def format_reference(recall_knowledge):
         doc_title =  item['doc_title']
         text += f'Doc[{sn+1}]:["{doc_title}"]-["{doc_category}"]\n{json.dumps(displaydata,ensure_ascii=False)}\n'
     return text
+
+
 
 def main_entry_new(session_id:str, query_input:str, embedding_model_endpoint:str, llm_model_endpoint:str, llm_model_name:str, aos_endpoint:str, aos_index:str, aos_knn_field:str,
                     aos_result_num:int, kendra_index_id:str, kendra_result_num:int,use_qa:bool,wsclient=None,msgid:str='',max_tokens:int = 2048,temperature:float = 0.01,template:str = '',imgurl:str = None,multi_rounds:bool = False):
@@ -879,24 +891,37 @@ def main_entry_new(session_id:str, query_input:str, embedding_model_endpoint:str
     stream_callback = CustomStreamingOutCallbackHandler(wsclient,msgid, session_id,llm_model_name)
     if llm_model_name == 'claude':
         ACCESS_KEY, SECRET_KEY=get_bedrock_aksk()
+        # 使用 titan 
+        modelId = 'amazon.titan-tg1-large' # change this to use a different version from the model provider
+        accept = 'application/json'
+        contentType = 'application/json'
+        endporint = 'https://prod.us-west-2.frontend.bedrock.aws.dev'
+        max_tokens = 2048
+        A_Role_en="User"
+        A_Role="用户"
+        Fewshot_prefix_Q="User"
+        STOP=[]
+        temperature=0.1
 
         boto3_bedrock = boto3.client(
             service_name="bedrock",
-            region_name="us-east-1",
-            endpoint_url="https://bedrock.us-east-1.amazonaws.com",
+            region_name="us-west-2",
+            endpoint_url=endporint,
             aws_access_key_id=ACCESS_KEY,
             aws_secret_access_key=SECRET_KEY
         )
 
         parameters = {
-            "max_tokens_to_sample": max_tokens,
-            "stop_sequences":STOP,
-            "temperature":temperature,
-            "top_p":1
+            # "accept":accept,
+            # "contentType":contentType,
+            # "max_tokens": 2048,
+            "stopSequences":STOP,
+            "temperature":0.9,
+            "topP":1
         }
         
-        llm = Bedrock(model_id="anthropic.claude-v1", client=boto3_bedrock, model_kwargs=parameters)
-        # print("llm is anthropic.claude-v1")
+        llm = Bedrock(model_id=modelId, client=boto3_bedrock, model_kwargs=parameters)
+        print("llm is " + modelId)
     elif llm_model_name.startswith('gpt-3.5-turbo'):
         use_stream = True
         global openai_api_key
@@ -1021,12 +1046,22 @@ def main_entry_new(session_id:str, query_input:str, embedding_model_endpoint:str
             ##添加召回引用
             stream_callback.add_recall_knowledge(recall_knowledge)
             query_type = QueryType.KnowledgeQuery
-            prompt_template = create_baichuan_prompt_template(template) if llm_model_name.startswith('baichuan') else create_qa_prompt_templete(template) 
-            llmchain = LLMChain(llm=llm,verbose=verbose,prompt =prompt_template )
+            if llm_model_name.startswith('baichuan'):
+                prompt_template = create_baichuan_prompt_template(template)
+            elif llm_model_name.startswith('claude'):
+                prompt_template = create_intension_prompt_template(template) 
+            else:
+                prompt_template = create_qa_prompt_templete(template) 
+
+            llmchain = LLMChain(llm=llm,verbose=verbose,prompt =prompt_template)
             # context = "\n".join([doc['doc'] for doc in recall_knowledge])
             context = qa_knowledge_fewshot_build(recall_knowledge)
             ##最终的answer
-            answer = llmchain.run({'question':query_input,'context': context,'chat_history':chat_history,'role_bot':B_Role})
+            if llm_model_name.startswith('claude'):
+                intension_case = context
+                answer = llmchain.run({'intension_case':intension_case, 'question': query_input})
+            else:
+                answer = llmchain.run({'question':query_input,'context': context,'chat_history':chat_history,'role_bot':B_Role})
             ##最终的prompt日志
             final_prompt = prompt_template.format(question=query_input,role_bot=B_Role,context=context,chat_history=chat_history)
             logger.info(f"final_prompt:{final_prompt}")
