@@ -1064,7 +1064,7 @@ def main_entry_new(session_id:str, query_input:str, embedding_model_endpoint:str
             # context = "\n".join([doc['doc'] for doc in recall_knowledge])
             context = qa_knowledge_fewshot_build(recall_knowledge)
             ##最终的answer
-            if llm_model_name.startswith('claude') or llm_model_name.startswith('llama2'):
+            if llm_model_name.startswith('claude') or llm_model_name.startswith('llama'):
                 logger.info(f"run llm " + llm_model_name)
                 intension_case = context
                 answer = llmchain.run({'intension_case':intension_case, 'question': query_input})
