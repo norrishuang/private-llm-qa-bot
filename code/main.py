@@ -1055,7 +1055,7 @@ def main_entry_new(session_id:str, query_input:str, embedding_model_endpoint:str
             query_type = QueryType.KnowledgeQuery
             if llm_model_name.startswith('baichuan'):
                 prompt_template = create_baichuan_prompt_template(template)
-            elif llm_model_name.startswith('claude'):
+            elif llm_model_name.startswith('claude') or llm_model_name.startswith('llama'):
                 prompt_template = create_intension_prompt_template(template) 
             else:
                 prompt_template = create_qa_prompt_templete(template) 
