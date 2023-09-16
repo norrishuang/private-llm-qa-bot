@@ -1067,15 +1067,16 @@ def main_entry_new(session_id:str, query_input:str, embedding_model_endpoint:str
             if llm_model_name.startswith('claude') or llm_model_name.startswith('llama'):
                 logger.info(f"run llm " + llm_model_name)
                 intension_case = context
-                answer = llmchain.run({'intension_case':intension_case, 'question': query_input})
                 final_prompt = prompt_template.format(question=query_input,intension_case=intension_case)
+                logger.info(f"final_prompt:{final_prompt}")
+                answer = llmchain.run({'intension_case':intension_case, 'question': query_input})
             else:
                 logger.info(f"run llm othen")
                 answer = llmchain.run({'question':query_input,'context': context,'chat_history':chat_history,'role_bot':B_Role})
                 final_prompt = prompt_template.format(question=query_input,role_bot=B_Role,context=context,chat_history=chat_history)
             ##最终的prompt日志
             
-            logger.info(f"final_prompt:{final_prompt}")
+            
             logger.info(f"answer:{answer}")
 
     # answer = enforce_stop_tokens(answer, STOP)
