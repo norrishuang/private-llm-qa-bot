@@ -792,7 +792,7 @@ def create_intension_prompt_template(prompt_template):
     if prompt_template == '':
         prompt_template_zh = """System:You are a AI Bot
             {intension_case}
-            User:{question} what does this phrase mean? Please get the options from [hungry, thirsty, sleepy, unknown] to answer
+            User:{question}.  what does this phrase mean? Please get the options from [hungry, thirsty, sleepy, unknown] to answer
 
             """
     else:
@@ -1078,7 +1078,7 @@ def main_entry_new(session_id:str, query_input:str, embedding_model_endpoint:str
             logger.info(f"final_prompt:{final_prompt}")
             logger.info(f"answer:{answer}")
 
-    answer = enforce_stop_tokens(answer, STOP)
+    # answer = enforce_stop_tokens(answer, STOP)
 
     # if not use_stream and recall_knowledge:
     #     text = format_reference(recall_knowledge)
