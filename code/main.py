@@ -793,7 +793,7 @@ def create_intension_prompt_template(prompt_template):
         prompt_template_zh = """System:You are a AI Bot
             {intension_case}
             User:{question} what does this phrase mean? Please get the options from [hungry, thirsty, sleepy, unknown] to answer
-            
+
             """
     else:
         prompt_template_zh = prompt_template
@@ -1065,12 +1065,16 @@ def main_entry_new(session_id:str, query_input:str, embedding_model_endpoint:str
             context = qa_knowledge_fewshot_build(recall_knowledge)
             ##最终的answer
             if llm_model_name.startswith('claude'):
+                logger.info(f"run llm bedrock")
                 intension_case = context
                 answer = llmchain.run({'intension_case':intension_case, 'question': query_input})
+                final_prompt = prompt_template.format(question=query_input,intension_case=intension_case)
             else:
+                logger.info(f"run llm othen")
                 answer = llmchain.run({'question':query_input,'context': context,'chat_history':chat_history,'role_bot':B_Role})
+                final_prompt = prompt_template.format(question=query_input,role_bot=B_Role,context=context,chat_history=chat_history)
             ##最终的prompt日志
-            final_prompt = prompt_template.format(question=query_input,role_bot=B_Role,context=context,chat_history=chat_history)
+            
             logger.info(f"final_prompt:{final_prompt}")
             logger.info(f"answer:{answer}")
 
