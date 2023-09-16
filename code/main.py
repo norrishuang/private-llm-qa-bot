@@ -1064,8 +1064,8 @@ def main_entry_new(session_id:str, query_input:str, embedding_model_endpoint:str
             # context = "\n".join([doc['doc'] for doc in recall_knowledge])
             context = qa_knowledge_fewshot_build(recall_knowledge)
             ##最终的answer
-            if llm_model_name.startswith('claude'):
-                logger.info(f"run llm bedrock")
+            if llm_model_name.startswith('claude') or llm_model_name.startswith('llama2'):
+                logger.info(f"run llm " + llm_model_name)
                 intension_case = context
                 answer = llmchain.run({'intension_case':intension_case, 'question': query_input})
                 final_prompt = prompt_template.format(question=query_input,intension_case=intension_case)
@@ -1401,6 +1401,9 @@ def lambda_handler(event, context):
     # "model": "模型名称"
     # "choices": [{"text": "模型回答的内容"}]
     # "usage": {"prompt_tokens": 58, "completion_tokens": 15, "total_tokens": 73}}]
+
+    if model_name == 'claude':
+        model_name = 'Titan'
 
     return {
         'statusCode': 200,
