@@ -790,7 +790,7 @@ def create_qa_llama2_prompt_templete(prompt_template):
 #用于意图识别的 prompt template
 def create_intension_prompt_template(prompt_template):
     if prompt_template == '':
-        prompt_template_zh = """System:You are a AI Bot
+        prompt_template_zh = """System:{system_role_prompt}
             {intension_case}
             User:{question}.  what does this phrase mean? Please get the options from [hungry, thirsty, sleepy, unknown] to answer
 
@@ -799,7 +799,7 @@ def create_intension_prompt_template(prompt_template):
         prompt_template_zh = prompt_template
     PROMPT = PromptTemplate(
         template=prompt_template_zh,
-        # partial_variables={'system_role_prompt':'You are a AI Bot'},
+        partial_variables={'system_role_prompt':SYSTEM_ROLE_PROMPT},
         input_variables=["intension_case",'question']
     )
     return PROMPT
